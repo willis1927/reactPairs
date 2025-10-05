@@ -1,8 +1,9 @@
-import logo from './logo.svg';
+
 import './App.css';
 import { useState } from 'react';
 import { createClient } from 'pexels';
-
+import { Image } from 'primereact/image';
+        
 
 function App() {
   const client = createClient('J3rAGK7qyASIeivXCUAhHby1qILUQWHyEcxUJgA9FIIzJWv8QkLMEUKW');
@@ -18,10 +19,11 @@ function App() {
   const [firstCardIdx, setFirstCardIdx] = useState(null)
   const categories = ["animals", "sports", "flags", "fruits", "vehicles", "faces", "foods", "nature", "objects", "symbols"];
   const [category, setCategory] = useState("fruits");
-  const [imageData, setImageData] = useState([]);
+  const [turnCounter, setTurnCounter] = useState(0);
   // Function to check for a match between two cards
 const checkForMatch = (firstIdx, secondIdx) => {
   if (gamedata.cards[firstIdx].value === gamedata.cards[secondIdx].value) {
+    
     // It's a match
     let cards = [...gamedata.cards];
     cards[firstIdx].paired = true;
@@ -40,7 +42,7 @@ const checkForMatch = (firstIdx, secondIdx) => {
         cards: cards,
         state: gamedata.state
       });
-    }, 1000);
+    }, 500);
   }
   setFirstCardIdx(null); // Reset first card index for the next turn
   setTimeout(() => {if (gamedata.cards.every(card => card.paired)) {
@@ -65,11 +67,12 @@ const checkForMatch = (firstIdx, secondIdx) => {
 
   // Function to create a new game
 const createGame = () => {
+  setTurnCounter(0);
   const query = String(category);
   client.photos
     .search({ query, per_page: cardQty, orientation: 'square' })
     .then(photos => {
-      setImageData(photos.photos); // still update state if you need elsewhere
+      
 
       let cards = [];
       for (let i = 0; i < cardQty; i++) {
@@ -120,6 +123,7 @@ const createGame = () => {
       
       setFirstCardIdx(currentCardIdx)
     } else { 
+      setTurnCounter(turnCounter + 1);
       const secondCardIdx = currentCardIdx;
       checkForMatch(firstCardIdx, secondCardIdx)
     }
@@ -152,7 +156,9 @@ const createGame = () => {
           )
         })}
       </select>
+      
       </span>
+      <span className="text-lg font-medium">Turns: {turnCounter} </span>
       <button className="bg-purple-500 text-white font-bold rounded-lg p-2 m-4" onClick={handleStartGame}>Create New Game</button>
       </div>
       <div className="Container grid grid-cols-2 md:grid-cols-10 gap-4 justify-center items-center p-4">
@@ -161,7 +167,7 @@ const createGame = () => {
           <div key={card.id} id={card.id} className="Card border border-gray-300 aspect-square rounded-lg m-4 shadow-2xl shadow-blue-900" onClick={() =>handleCardClick(card.id)}>
             {card.visible ? (
               <div className="relative w-full h-full">
-    <img
+    <Image
       src={card.link}
       alt={card.alt}
       className="block mx-auto w-full h-full object-fill rounded-lg border-2 border-white"
@@ -183,7 +189,7 @@ const createGame = () => {
   
 
 
-  <a href="https://www.pexels.com">
+  <a href="https://www.pexels.com" target='_blank' rel="noreferrer" className="mt-8">
   <img
     src="https://images.pexels.com/lib/api/pexels.png"
     className="block mx-auto w-24 h-24 object-contain"
